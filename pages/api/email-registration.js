@@ -15,7 +15,7 @@ export default function handler(req, res) {
 	const { method } = req;
 
 	const filePath = buildPath();
-	const { event_categories, allEvents } = extractData(filePath);
+	const { events_categories, allEvents } = extractData(filePath);
 
 	if (!allEvents) {
 		return res.status(404).json({
@@ -29,13 +29,12 @@ export default function handler(req, res) {
 
 		if (!email | !email.includes("@")) {
 			res.status(422).json({ message: "Invalid email adress" });
-			return;
 		}
 
 		const newAllEvents = allEvents.map((event) => {
 			if (event.id === eventId) {
 				if (event.emails_registered.includes(email)) {
-					res.status(201).json({
+					res.status(409).json({
 						message: "This email has already beed registered",
 					});
 					return event;
@@ -51,7 +50,7 @@ export default function handler(req, res) {
 		fs.writeFileSync(
 			filePath,
 			JSON.stringify({
-				event_categories,
+				events_categories,
 				allEvents: newAllEvents,
 			})
 		);
